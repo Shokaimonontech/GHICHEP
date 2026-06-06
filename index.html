@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Tay Học Tập Pastel</title>
+    <!-- Nhúng font chữ Tiếng Việt bo tròn hiện đại -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #E8F1F5;
+            --card-bg: #FFFFFF;
+            --primary-color: #A3C9E2;
+            --primary-dark: #7FB5D6;
+            --text-color: #4A5568;
+            --accent-color: #F3C68F;
+            --success-color: #A2E3C4;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(163, 201, 226, 0.3);
+        }
+
+        /* Thiết kế các nút Tab chuyển đổi */
+        .tab-menu {
+            display: flex;
+            background: #F0F4F8;
+            padding: 6px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-weight: 600;
+            color: #A0AEC0;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(163, 201, 226, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form & Inputs tinh tế */
+        h2 {
+            font-size: 20px;
+            margin-top: 0;
+            color: #2D3748;
+            text-align: center;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-dark);
+        }
+
+        /* Các nút chức năng mềm mại */
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #recordBtn { background-color: #F2A5A5; color: white; margin-bottom: 10px;}
+        #stopBtn { background-color: #A0AEC0; color: white; margin-bottom: 15px;}
+        #uploadAudioBtn { background-color: var(--primary-color); color: white; }
+        #saveVocabBtn { background-color: var(--primary-color); color: white; }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        audio {
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 12px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 15px;
+            font-weight: 500;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Menu Tab chuyển đổi thanh lịch -->
+    <div class="tab-menu">
+        <button class="tab-btn active" onclick="openTab('ghi-am-tab', this)">🎙️ Ghi Âm</button>
+        <button class="tab-btn" onclick="openTab('tu-vung-tab', this)">📚 Từ Vựng Mới</button>
+    </div>
+
+    <!-- TAB 1: GHI ÂM -->
+    <div id="ghi-am-tab" class="tab-content active">
+        <h2>Trình ghi âm đồng bộ</h2>
+        <button id="recordBtn" class="btn-main">🔴 Bắt đầu ghi âm</button>
+        <button id="stopBtn" class="btn-main" disabled>🛑 Dừng ghi</button>
+        <audio id="audioPlayback" controls></audio>
+        <button id="uploadAudioBtn" class="btn-main" disabled>☁️ Tải lên Sheet</button>
+        <div id="audioStatus" class="status">Sẵn sàng ghi âm...</div>
+    </div>
+
+    <!-- TAB 2: TỪ VỰNG -->
+    <div id="tu-vung-tab" class="tab-content">
+        <h2>Thêm từ vựng vừa gặp</h2>
+        <label>Từ mới / Cụm từ:</label>
+        <input type="text" id="vocabWord" placeholder="Ví dụ: Serendipity">
+        
+        <label>Nghĩa / Ghi chú ngữ cảnh:</label>
+        <textarea id="vocabMeaning" rows="3" placeholder="Sự tình cờ may mắn tìm ra thứ tốt đẹp..."></textarea>
+        
+        <button id="saveVocabBtn" class="btn-main">✨ Lưu vào kho từ vựng</button>
+        <div id="vocabStatus" class="status">Sẵn sàng lưu từ mới...</div>
+    </div>
+</div>
+
+<script>
+    // ĐỔI LINK CỦA BẠN VÀO ĐÂY
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwRg9fhRf3Rua94TjnFUf4FHqAl1BBDSydad84UJ367bOQGLhDcuNjUCm6NCTHS2OYL1Q/exec';
+
+    // Hàm chuyển đổi qua lại giữa các tab
+    function openTab(tabId, btnElement) {
+        let contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+        
+        let buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        btnElement.classList.add('active');
+    }
+
+    // LOGIC XỬ LÝ CHO PHẦN GHI ÂM
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioBlob;
+
+    const recordBtn = document.getElementById('recordBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const uploadAudioBtn = document.getElementById('uploadAudioBtn');
+    const audioStatus = document.getElementById('audioStatus');
+    const audioPlayback = document.getElementById('audioPlayback');
+
+    recordBtn.addEventListener('click', async () => {
+        audioChunks = [];
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                audioPlayback.src = URL.createObjectURL(audioBlob);
+                uploadAudioBtn.disabled = false;
+                audioStatus.innerText = "Đã chuẩn bị file. Bạn có thể bấm gửi!";
+            };
+
+            mediaRecorder.start();
+            recordBtn.disabled = true;
+            stopBtn.disabled = false;
+            uploadAudioBtn.disabled = true;
+            audioStatus.innerText = "🎙️ Đang ghi âm âm thanh của bạn...";
+        } catch (err) {
+            alert("Vui lòng cấp quyền mở micro!");
+        }
+    });
+
+    stopBtn.addEventListener('click', () => {
+        mediaRecorder.stop();
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+    });
+
+    uploadAudioBtn.addEventListener('click', () => {
+        audioStatus.innerText = "⏳ Đang chuyển và đẩy file lên Sheet...";
+        uploadAudioBtn.disabled = true;
+
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = () => {
+            const base64Data = reader.result.split(',')[1];
+            
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: "AUDIO",
+                    audioBase64: base64Data,
+                    mimeType: 'audio/mp3',
+                    fileName: 'Record_' + Date.now() + '.mp3'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.result === "success") {
+                    audioStatus.innerHTML = `✅ Đã lưu vào tab GhiAm! <a href="${data.url}" target="_blank">Nghe file gốc</a>`;
+                } else {
+                    audioStatus.innerText = "❌ Lỗi: " + data.error;
+                    uploadAudioBtn.disabled = false;
+                }
+            })
+            .catch(() => {
+                audioStatus.innerText = "❌ Lỗi kết nối mạng.";
+                uploadAudioBtn.disabled = false;
+            });
+        };
+    });
+
+    // LOGIC XỬ LÝ CHO PHẦN LƯU TỪ VỰNG
+    const saveVocabBtn = document.getElementById('saveVocabBtn');
+    const vocabWord = document.getElementById('vocabWord');
+    const vocabMeaning = document.getElementById('vocabMeaning');
+    const vocabStatus = document.getElementById('vocabStatus');
+
+    saveVocabBtn.addEventListener('click', () => {
+        const word = vocabWord.value.trim();
+        const meaning = vocabMeaning.value.trim();
+
+        if(!word || !meaning) {
+            alert("Hãy điền đầy đủ cả từ mới và nghĩa của nó nha!");
+            return;
+        }
+
+        vocabStatus.innerText = "⏳ Đang lưu từ mới lên Sheet...";
+        saveVocabBtn.disabled = true;
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                type: "VOCAB",
+                word: word,
+                meaning: meaning
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.result === "success") {
+                vocabStatus.innerText = "✅ Đã thêm từ vựng thành công vào tab TuVung!";
+                vocabWord.value = "";
+                vocabMeaning.value = "";
+            } else {
+                vocabStatus.innerText = "❌ Không thể lưu từ vựng.";
+            }
+            saveVocabBtn.disabled = false;
+        })
+        .catch(() => {
+            vocabStatus.innerText = "❌ Lỗi kết nối mạng.";
+            saveVocabBtn.disabled = false;
+        });
+    });
+</script>
+</body>
+</html>
