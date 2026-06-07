@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
   <title>Doraemon Study Space ✦</title>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght=500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <style>
@@ -72,6 +72,8 @@
     .btn-main { background-color: var(--mon-blue-dark); color: white; }
     .btn-main:hover { background-color: var(--mon-blue-deep); }
     .btn-delete { background-color: #ffe3e3; color: #e03131; }
+    .btn-danger-zone { background-color: #e03131; color: white; margin-top: 8px; font-size: 13px; padding: 10px; }
+    .btn-danger-zone:hover { background-color: #c92a2a; }
 
     .toast-status { padding: 10px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; margin-top: 10px; display: none; }
     .toast-status.pending { display: block; background-color: #ffe066; color: #664d03; }
@@ -163,6 +165,12 @@
         <label>2. Đường dẫn (URL) Google Sheet của bạn <span class="required-tag">*</span></label>
         <input type="text" id="cfgSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/.../edit">
         <button onclick="saveConfiguration()" class="btn btn-main" style="width:100%; background-color:#f59f00;"><i class="fa-solid fa-circle-check"></i> Lưu cấu hình vào máy</button>
+        
+        <hr style="border: 0; border-top: 1px dashed #fab005; margin: 14px 0;">
+        <label style="color:#c92a2a;"><i class="fa-solid fa-triangle-exclamation"></i> Vùng Nguy Hiểm (Chỉ tác động lên Sheet):</label>
+        <button onclick="clearAllVocabularyOnSheetOnly()" class="btn btn-danger-zone" style="width:100%;">
+          <i class="fa-solid fa-dumpster-fire"></i> Lệnh: Xóa sạch từ vựng TRÊN GOOGLE SHEET
+        </button>
       </div>
     </div>
 
@@ -178,12 +186,12 @@
         </div>
         <audio id="audioPlayback" controls></audio>
         <div id="recordingActions" class="action-row" style="display: none; margin-bottom: 10px;">
-          <button id="deleteRecordBtn" class="btn btn-delete"><i class="fa-solid fa-trash-can"></i> Hủy nháp</button>
-          <button id="uploadRecordBtn" class="btn btn-main"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu lên Drive</button>
+          <button id="deleteRecordBtn" class="btn btn-delete"><i class="fa-solid fa-trash-can"></i> Hủy nháp trên Web</button>
+          <button id="uploadRecordBtn" class="btn btn-main"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu lên Drive & Sheet</button>
         </div>
         <div style="text-align: center; margin: 10px 0; color: #adb5bd; font-size: 11px; font-weight:700;">— HOẶC UP FILE TỪ MÁY —</div>
         <input type="file" id="audioFile" accept="audio/*">
-        <button id="uploadFileBtn" class="btn btn-main" style="width:100%;"><i class="fa-solid fa-upload"></i> Đẩy File Lên Drive</button>
+        <button id="uploadFileBtn" class="btn btn-main" style="width:100%;"><i class="fa-solid fa-upload"></i> Đẩy File Lên Drive & Sheet</button>
         <div id="audioToast" class="toast-status"></div>
       </div>
     </div>
@@ -205,22 +213,22 @@
         
         <div class="control-row">
           <button id="saveVocabBtn" class="btn btn-main" style="background-color:var(--mon-blue-deep); flex:2;">
-            <i class="fa-solid fa-floppy-disk"></i> Lưu Hệ Thống
+            <i class="fa-solid fa-floppy-disk"></i> Lưu Hệ Thống (Đẩy lên Sheet)
           </button>
-          <button id="clearAllBtn" class="btn btn-clear-all btn-small">
-            <i class="fa-solid fa-dumpster-fire"></i> Xóa tất cả
+          <button id="clearAllBtn" class="btn btn-clear-all btn-small" title="Chỉ xóa sạch trên giao diện Web">
+            <i class="fa-solid fa-eraser"></i> Xóa sạch màn hình Web
           </button>
         </div>
         
         <div id="vocabToast" class="toast-status"></div>
 
         <div id="undoBanner" class="undo-banner">
-          <span><i class="fa-solid fa-rotate-left"></i> Đã xóa dữ liệu...</span>
+          <span><i class="fa-solid fa-rotate-left"></i> Đã ẩn tạm thời trên Web...</span>
           <button id="undoBtn" class="btn-undo-action">Hoàn tác</button>
         </div>
 
         <div class="vocab-list-header-row">
-          <div class="vocab-list-title"><i class="fa-solid fa-list-check"></i> Danh sách từ đã lưu:</div>
+          <div class="vocab-list-title"><i class="fa-solid fa-list-check"></i> Danh sách hiển thị trên Web:</div>
           <button class="btn-sync-refresh" onclick="syncFromSheet()"><i class="fa-solid fa-rotate"></i> Tải dữ liệu từ Sheet</button>
         </div>
         
@@ -231,12 +239,12 @@
                 <th class="col-stt">STT</th>
                 <th class="col-word">Từ vựng</th>
                 <th class="col-meaning">Ý nghĩa</th>
-                <th class="col-actions">Xóa</th>
+                <th class="col-actions">Ẩn</th>
               </tr>
             </thead>
             <tbody id="vocabDataBody"></tbody>
           </table>
-          <div id="emptyTip" class="empty-tip">Chưa có dữ liệu. Hãy điền cấu hình link Sheet trước nha! 🎒</div>
+          <div id="emptyTip" class="empty-tip">Chưa có dữ liệu hiển thị. Hãy bấm "Tải dữ liệu từ Sheet" nha! 🎒</div>
         </div>
       </div>
     </div>
@@ -304,7 +312,6 @@
     syncFromSheet();
   }
 
-  // Giao tiếp qua Fetch API API thay cho google.script.run
   async function callAppsScriptAPI(payload) {
     const url = getScriptUrl();
     if(!url) {
@@ -322,7 +329,7 @@
       return await response.json();
     } catch(err) {
       console.error(err);
-      return { success: false, message: "Lỗi đường truyền internet hoặc sai link Web App!" };
+      return { success: false, message: "Lỗi kết nối hoặc sai thông tin cấu hình!" };
     }
   }
 
@@ -332,14 +339,14 @@
     const tip = document.getElementById('emptyTip');
     tbody.innerHTML = "";
     tip.style.display = 'block';
-    tip.textContent = "⏳ Doraemon đang quét dữ liệu từ file Sheet về...";
+    tip.textContent = "⏳ Doraemon đang tải dữ liệu gốc từ file Sheet về...";
 
     let sheetList = await callAppsScriptAPI({ action: "readVocabulary" });
     if(sheetList && Array.isArray(sheetList)) {
       setLocalVocabs(sheetList);
       renderVocabList();
     } else {
-      tip.textContent = "Không thể tải dữ liệu. Hãy kiểm tra lại phần Cấu hình.";
+      tip.textContent = "Không thể tải dữ liệu. Hãy kiểm tra lại cấu hình.";
     }
   }
 
@@ -351,7 +358,7 @@
     
     if (vocabs.length === 0) {
       tip.style.display = 'block';
-      tip.textContent = "Chưa có từ vựng nào trong tủ! 🎒";
+      tip.textContent = "Màn hình trống! Bấm nút bên trên để tải lại từ Sheet. 🎒";
       return;
     }
     tip.style.display = 'none';
@@ -368,8 +375,8 @@
           ${item.meaning ? escapeHtml(item.meaning) : '<i style="color:#adb5bd;">Trống</i>'}
         </td>
         <td class="col-actions">
-          <button class="btn-table-icon btn-delete-item" onclick="deleteVocabItem(${index})">
-            <i class="fa-solid fa-circle-xmark"></i>
+          <button class="btn-table-icon btn-delete-item" onclick="deleteVocabItem(${index})" title="Chỉ ẩn khỏi Web">
+            <i class="fa-solid fa-eye-slash" style="color: #aeafb0;"></i>
           </button>
         </td>
       `;
@@ -422,50 +429,62 @@
     }
   });
 
-  async function deleteVocabItem(index) {
+  // CHỈ XÓA TRÊN WEB - KHÔNG ĐỤNG VÀO SHEET
+  function deleteVocabItem(index) {
     let vocabs = getLocalVocabs();
     let removed = vocabs.splice(index, 1)[0];
     lastDeletedData = { type: "single", item: removed, index: index };
     setLocalVocabs(vocabs); renderVocabList();
     triggerUndoCountdown();
-    await callAppsScriptAPI({ action: "deleteVocabulary", word: removed.word });
+    showToast(vocabToast, "success", "Đã ẩn từ vựng này khỏi màn hình Web! (Dữ liệu trên Sheet vẫn nguyên vẹn)");
   }
 
-  document.getElementById('clearAllBtn').addEventListener('click', async () => {
+  // CHỈ XÓA TRÊN WEB - KHÔNG ĐỤNG VÀO SHEET
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
     let vocabs = getLocalVocabs();
     if (vocabs.length === 0) return;
-    if (!confirm("Cậu muốn xóa sạch toàn bộ từ vựng?")) return;
     lastDeletedData = { type: "all", list: vocabs };
     setLocalVocabs([]); renderVocabList();
     triggerUndoCountdown();
-    await callAppsScriptAPI({ action: "clearAllVocabulary" });
+    showToast(vocabToast, "success", "Đã dọn sạch màn hình Web! (Dữ liệu trên Sheet vẫn còn)");
   });
 
-  document.getElementById('undoBtn').addEventListener('click', async () => {
+  // HÀM ĐẶC BIỆT: GỌI API ĐỂ XÓA SHEET (NẰM TRONG ZONE CẤU HÌNH)
+  async function clearAllVocabularyOnSheetOnly() {
+    if(!getScriptUrl()) { alert("Chưa cấu hình liên kết!"); return; }
+    if (!confirm("CẢNH BÁO NGUY HIỂM: Bạn có chắc chắn muốn xóa SẠCH TOÀN BỘ từ vựng trên file Google Sheets không? Hành động này không thể khôi phục!")) return;
+    
+    showToast(vocabToast, "pending", "Đang tiến hành dọn sạch file Google Sheet...");
+    let res = await callAppsScriptAPI({ action: "clearAllVocabulary" });
+    if (res && res.success) {
+      setLocalVocabs([]); 
+      renderVocabList();
+      alert("Đã xóa sạch bảng dữ liệu 'Tu Vung' trên Google Sheet của cậu rồi nha! 🧹");
+    } else {
+      alert("Lỗi: Không thể xóa dữ liệu trên Sheet.");
+    }
+  }
+
+  document.getElementById('undoBtn').addEventListener('click', () => {
     if (!lastDeletedData) return;
     let vocabs = getLocalVocabs();
     if (lastDeletedData.type === "single") {
       vocabs.splice(lastDeletedData.index, 0, lastDeletedData.item);
-      setLocalVocabs(vocabs);
-      await callAppsScriptAPI({ action: "saveVocabulary", word: lastDeletedData.item.word, meaning: lastDeletedData.item.meaning, note: lastDeletedData.item.note, currentStt: lastDeletedData.index + 1 });
     } else {
-      setLocalVocabs(lastDeletedData.list);
-      for(let i=0; i<lastDeletedData.list.length; i++) {
-        let it = lastDeletedData.list[i];
-        await callAppsScriptAPI({ action: "saveVocabulary", word: it.word, meaning: it.meaning, note: it.note, currentStt: i + 1 });
-      }
+      vocabs = lastDeletedData.list;
     }
+    setLocalVocabs(vocabs);
     hideUndoBanner(); renderVocabList();
-    showToast(vocabToast, "success", "Khôi phục thành công! ✨");
+    showToast(vocabToast, "success", "Đã khôi phục hiển thị trên Web! ✨");
   });
 
   function triggerUndoCountdown() { clearTimeout(undoTimeout); undoBanner.style.display = "flex"; undoTimeout = setTimeout(hideUndoBanner, 5000); }
   function hideUndoBanner() { undoBanner.style.display = "none"; lastDeletedData = null; }
   function getLocalVocabs() { let l = localStorage.getItem('doraemon_vocabs'); return l ? JSON.parse(l) : []; }
   function setLocalVocabs(arr) { localStorage.setItem('doraemon_vocabs', JSON.stringify(arr)); }
-  function escapeHtml(t) { return t ? t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : ""; }
+  function escapeHtml(t) { return t ? t.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """) : ""; }
 
-  // --- HỆ THỐNG GHI ÂM ĐA NỀN TẢNG (FIXED FOR MOBILE/LAPTOP) ---
+  // --- HỆ THỐNG GHI ÂM (HỦY NHÁP KHÔNG XÓA DRIVE) ---
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === "recording") {
       mediaRecorder.stop();
@@ -477,12 +496,8 @@
     audioChunks = [];
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      // Chọn Định Dạng Tệp tối ưu cho mọi Hệ Điều Hành (Bao gồm cả iOS Safari)
       let options = { mimeType: 'audio/webm' };
-      if (!MediaRecorder.isTypeSupported('audio/webm')) {
-        options = { mimeType: 'audio/mp4' }; // Fallback cho iOS Safari
-      }
+      if (!MediaRecorder.isTypeSupported('audio/webm')) { options = { mimeType: 'audio/mp4' }; }
 
       mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
@@ -491,8 +506,6 @@
         audioPlayback.src = URL.createObjectURL(recordedBlob);
         audioPlayback.style.display = 'block'; recordingActions.style.display = 'flex';
         recordBtn.style.display = 'none'; recordStatus.textContent = "File nháp đã sẵn sàng!";
-        
-        // Tắt Microphone sau khi dùng để bảo vệ pin và bảo mật thiết bị
         stream.getTracks().forEach(track => track.stop());
       };
       
@@ -500,14 +513,14 @@
       recordBtn.classList.add('recording');
       recordBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
       recordStatus.textContent = "🔴 Đang thu âm... Chạm để dừng";
-    } catch (err) { 
-      alert("Hãy mở quyền Micro cho web trên trình duyệt điện thoại/laptop của cậu nhé!"); 
-    }
+    } catch (err) { alert("Hãy mở quyền Micro nhé!"); }
   });
 
+  // Hủy nháp chỉ là hủy file vừa ghi trên giao diện Web, chưa up lên Drive nên không sợ tốn dung lượng
   document.getElementById('deleteRecordBtn').addEventListener('click', () => {
     recordedBlob = null; audioPlayback.src = ""; audioPlayback.style.display = 'none';
     recordingActions.style.display = 'none'; recordBtn.style.display = 'flex'; recordStatus.textContent = "Chạm để thu lại";
+    showToast(audioToast, "success", "Đã xóa file nháp trên màn hình web.");
   });
 
   document.getElementById('uploadRecordBtn').addEventListener('click', () => {
@@ -543,7 +556,7 @@
     element.className = "toast-status " + type;
     element.style.display = "block";
     element.innerHTML = (type === "pending" ? '⏳ ' : (type === "success" ? '🎉 ' : '❌ ')) + message;
-    if (type !== "pending") setTimeout(() => { element.style.display = 'none'; }, 3500);
+    if (type !== "pending") setTimeout(() => { element.style.display = 'none'; }, 4000);
   }
 </script>
 </body>
