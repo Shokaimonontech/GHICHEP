@@ -1,308 +1,550 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sổ Tay Học Tập Pastel</title>
-    <!-- Nhúng font chữ Tiếng Việt bo tròn hiện đại -->
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <title>Doraemon Study Space ✦</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    :root {
+      --mon-blue-light: #e7f5ff;
+      --mon-blue: #a5d8ff;
+      --mon-blue-dark: #4dabf7;
+      --mon-blue-deep: #228be6;
+      --mon-red: #ff8787;
+      --mon-yellow: #ffd43b;
+      --text-dark: #2b3a4a;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(180deg, var(--mon-blue-light) 0%, #d0ebff 100%);
+      color: var(--text-dark);
+      margin: 0; padding: 12px; min-height: 100vh;
+      display: flex; justify-content: center; align-items: flex-start;
+    }
+
+    .app-container {
+      width: 100%; max-width: 480px; background: var(--card-bg);
+      border-radius: 32px; box-shadow: 0 16px 36px rgba(77, 171, 247, 0.25);
+      border: 4px solid var(--mon-blue); overflow: hidden; padding: 20px 14px; margin-bottom: 30px;
+    }
+
+    .doraemon-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+    .doraemon-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--mon-blue-dark); background-color: #fff; }
+    .collar { width: 70%; height: 10px; background-color: var(--mon-red); border-radius: 20px; margin-top: -5px; position: relative; display: flex; justify-content: center; }
+    .bell { width: 20px; height: 20px; background-color: var(--mon-yellow); border: 1.5px solid #333; border-radius: 50%; position: absolute; top: -4px; }
+    h1 { font-size: 20px; font-weight: 700; color: var(--mon-blue-deep); margin: 10px 0 2px 0; }
+    .header-subtitle { font-size: 12px; color: #868e96; margin: 0; }
+
+    .pocket-section { background: #f8fafd; border: 2px solid #e1effb; border-radius: 20px; margin-bottom: 12px; overflow: hidden; }
+    .pocket-header { padding: 14px 16px; background-color: #edf5fd; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--mon-blue-deep); font-size: 15px; }
+    .pocket-header i.fa-chevron-down { transition: transform 0.3s ease; font-size: 13px; color: var(--mon-blue-dark); }
+    .pocket-content { padding: 16px 14px; display: none; border-top: 1px solid #edf5fd; background-color: #fff; }
+    .pocket-section.active .pocket-content { display: block; }
+    .pocket-section.active .pocket-header i.fa-chevron-down { transform: rotate(180deg); }
+
+    label { font-size: 12.5px; font-weight: 700; color: #495057; display: block; margin-bottom: 4px; }
+    .required-tag { color: var(--mon-red); }
     
-    <style>
-        :root {
-            --bg-color: #E8F1F5;
-            --card-bg: #FFFFFF;
-            --primary-color: #A3C9E2;
-            --primary-dark: #7FB5D6;
-            --text-color: #4A5568;
-            --accent-color: #F3C68F;
-            --success-color: #A2E3C4;
-        }
+    input, textarea { 
+      width: 100%; padding: 11px 12px; margin-bottom: 12px; 
+      border: 2px solid #dee2e6; border-radius: 12px; 
+      font-family: 'Quicksand', sans-serif; font-size: 16px; 
+      outline: none; background-color: #fcfdfe; resize: vertical;
+    }
+    input:focus, textarea:focus { border-color: var(--mon-blue-dark); }
 
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+    /* Bộ Ghi Âm */
+    .recorder-box { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .record-circle { width: 68px; height: 68px; border-radius: 50%; background-color: var(--mon-red); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(255, 135, 135, 0.3); cursor: pointer; transition: transform 0.1s; }
+    .record-circle:active { transform: scale(0.95); }
+    .record-circle.recording { background-color: #f03e3e; animation: pulse 1.4s infinite; }
+    #audioPlayback { width: 100%; margin: 8px 0; display: none; }
+    
+    .action-row { display: flex; gap: 8px; width: 100%; }
+    .btn { flex: 1; padding: 12px; border: none; border-radius: 14px; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 14.5px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; }
+    .btn-main { background-color: var(--mon-blue-dark); color: white; }
+    .btn-main:hover { background-color: var(--mon-blue-deep); }
+    .btn-delete { background-color: #ffe3e3; color: #e03131; }
 
-        .app-container {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 450px;
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px rgba(163, 201, 226, 0.3);
-        }
+    .toast-status { padding: 10px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; margin-top: 10px; display: none; }
+    .toast-status.pending { display: block; background-color: #ffe066; color: #664d03; }
+    .toast-status.success { display: block; background-color: #d3f9d8; color: #2b8a3e; }
+    .toast-status.error { display: block; background-color: #ffe3e3; color: #c92a2a; }
 
-        /* Thiết kế các nút Tab chuyển đổi */
-        .tab-menu {
-            display: flex;
-            background: #F0F4F8;
-            padding: 6px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-        }
+    .undo-banner {
+      display: none; background-color: #2b3a4a; color: white; padding: 10px 14px;
+      border-radius: 14px; font-size: 13px; font-weight: 700; align-items: center;
+      justify-content: space-between; margin: 10px 0;
+    }
+    .btn-undo-action { background-color: var(--mon-yellow); color: #2b3a4a; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; }
 
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: transparent;
-            font-family: 'Be Vietnam Pro', sans-serif;
-            font-weight: 600;
-            color: #A0AEC0;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
+    .control-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-small { padding: 9px; font-size: 12.5px; border-radius: 10px; }
+    .btn-clear-all { background-color: #fff0f6; color: #d6336c; border: 1.5px solid #ffdeeb; }
 
-        .tab-btn.active {
-            background: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 10px rgba(163, 201, 226, 0.4);
-        }
+    .vocab-list-header-row { display: flex; justify-content: space-between; align-items: center; margin: 15px 0 8px 4px; }
+    .vocab-list-title { font-size: 13.5px; font-weight: 700; color: var(--mon-blue-deep); display: flex; align-items: center; gap: 6px; }
+    .btn-sync-refresh { background: none; border: none; color: var(--mon-blue-deep); cursor: pointer; font-size: 13px; font-family: 'Quicksand', sans-serif; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    
+    .vocab-table-container { border: 2px solid #edf5fd; border-radius: 14px; overflow: hidden; max-height: 280px; overflow-y: auto; background-color: #fafcfe; }
+    .vocab-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; table-layout: fixed; }
+    .vocab-table th { background-color: #edf5fd; color: var(--mon-blue-deep); padding: 10px; font-weight: 700; position: sticky; top: 0; }
+    .vocab-table td { padding: 10px 8px; border-bottom: 1px solid #eef2f6; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .vocab-table tr:nth-child(even) { background-color: #ffffff; }
+    
+    .col-stt { width: 12%; text-align: center; }
+    .col-word { width: 44%; cursor: pointer; }
+    .col-meaning { width: 32%; }
+    .col-actions { width: 12%; text-align: center; }
+    
+    .word-clickable { color: var(--mon-blue-deep); font-weight: 700; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
 
-        .tab-content {
-            display: none;
-        }
+    .btn-table-icon { background: none; border: none; cursor: pointer; font-size: 13px; padding: 4px; }
+    .btn-delete-item { color: #f03e3e; }
+    .btn-copy-item { color: #868e96; margin-right: 2px; }
+    .empty-tip { text-align: center; color: #adb5bd; padding: 24px; font-size: 13px; font-style: italic; }
 
-        .tab-content.active {
-            display: block;
-        }
+    /* Popup Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4); display: none;
+      justify-content: center; align-items: center; z-index: 999; padding: 16px;
+      backdrop-filter: blur(2px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: white; width: 100%; max-width: 400px;
+      border-radius: 24px; border: 3px solid var(--mon-blue-dark);
+      overflow: hidden; animation: popUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-header { background-color: var(--mon-blue-light); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e1effb; }
+    .modal-title { font-weight: 700; color: var(--mon-blue-deep); font-size: 15px; margin: 0; display: flex; align-items: center; gap: 6px; }
+    .modal-close { background: none; border: none; font-size: 18px; color: #adb5bd; cursor: pointer; }
+    .modal-body { padding: 18px 16px; }
+    
+    .detail-row { margin-bottom: 14px; background: #f8fafd; padding: 10px 12px; border-radius: 12px; border-left: 4px solid var(--mon-blue-dark); }
+    .detail-row.word-row { border-left-color: var(--mon-red); display: flex; justify-content: space-between; align-items: center; }
+    .detail-label { font-size: 11px; text-transform: uppercase; color: #868e96; font-weight: 700; margin-bottom: 2px; }
+    .detail-value { font-size: 15px; color: var(--text-dark); font-weight: 600; word-break: break-word; white-space: pre-wrap; }
+    .detail-value.big-word { font-size: 20px; color: #e03131; font-weight: 700; }
+    .btn-modal-copy { background-color: #f1f3f5; border: 1.5px solid #dee2e6; border-radius: 8px; padding: 6px 10px; font-family: 'Quicksand', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; }
 
-        /* Form & Inputs tinh tế */
-        h2 {
-            font-size: 20px;
-            margin-top: 0;
-            color: #2D3748;
-            text-align: center;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0 20px 0;
-            border: 2px solid #E2E8F0;
-            border-radius: 12px;
-            box-sizing: border-box;
-            font-family: 'Be Vietnam Pro', sans-serif;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, textarea:focus {
-            border-color: var(--primary-dark);
-        }
-
-        /* Các nút chức năng mềm mại */
-        .btn-main {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 14px;
-            font-family: 'Be Vietnam Pro', sans-serif;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        #recordBtn { background-color: #F2A5A5; color: white; margin-bottom: 10px;}
-        #stopBtn { background-color: #A0AEC0; color: white; margin-bottom: 15px;}
-        #uploadAudioBtn { background-color: var(--primary-color); color: white; }
-        #saveVocabBtn { background-color: var(--primary-color); color: white; }
-
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        audio {
-            width: 100%;
-            margin-bottom: 15px;
-            border-radius: 12px;
-        }
-
-        .status {
-            text-align: center;
-            font-size: 14px;
-            margin-top: 15px;
-            font-weight: 500;
-            color: #718096;
-        }
-    </style>
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+    @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  </style>
 </head>
 <body>
 
 <div class="app-container">
-    <!-- Menu Tab chuyển đổi thanh lịch -->
-    <div class="tab-menu">
-        <button class="tab-btn active" onclick="openTab('ghi-am-tab', this)">🎙️ Ghi Âm</button>
-        <button class="tab-btn" onclick="openTab('tu-vung-tab', this)">📚 Từ Vựng Mới</button>
+  
+    <div class="doraemon-header">
+      <img class="doraemon-avatar" src="https://lh3.googleusercontent.com/d/1_T0A4w083_99AeeD49-3Fh77Hj207v0D=s160" alt="Doraemon">
+      <div class="collar"><div class="bell"></div></div>
+      <h1>Doraemon Space ✦</h1>
+      <p class="header-subtitle">Đồng bộ đám mây kép cho Laptop & Phone</p>
     </div>
 
-    <!-- TAB 1: GHI ÂM -->
-    <div id="ghi-am-tab" class="tab-content active">
-        <h2>Trình ghi âm đồng bộ</h2>
-        <button id="recordBtn" class="btn-main">🔴 Bắt đầu ghi âm</button>
-        <button id="stopBtn" class="btn-main" disabled>🛑 Dừng ghi</button>
+    <div class="pocket-section" id="sec-config">
+      <div class="pocket-header" onclick="toggleSection('sec-config')">
+        <span><i class="fa-solid fa-gear" style="margin-right:6px;"></i> Cấu hình kết nối Bảo Bối</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="pocket-content" style="background-color: #fff9db;">
+        <label>1. Google Apps Script Web App URL <span class="required-tag">*</span></label>
+        <input type="text" id="cfgScriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
+        
+        <label>2. Đường dẫn (URL) Google Sheet của bạn <span class="required-tag">*</span></label>
+        <input type="text" id="cfgSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/.../edit">
+        <button onclick="saveConfiguration()" class="btn btn-main" style="width:100%; background-color:#f59f00;"><i class="fa-solid fa-circle-check"></i> Lưu cấu hình vào máy</button>
+      </div>
+    </div>
+
+    <div class="pocket-section" id="sec-audio">
+      <div class="pocket-header" onclick="toggleSection('sec-audio')">
+        <span><i class="fa-solid fa-microphone" style="margin-right:6px;"></i> 1. Bảo Bối Ghi Âm</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="pocket-content">
+        <div class="recorder-box">
+          <div id="recordBtn" class="record-circle"><i class="fa-solid fa-microphone"></i></div>
+          <span id="recordStatus" style="font-size:13px; font-weight:700;">Chạm để ghi âm</span>
+        </div>
         <audio id="audioPlayback" controls></audio>
-        <button id="uploadAudioBtn" class="btn-main" disabled>☁️ Tải lên Sheet</button>
-        <div id="audioStatus" class="status">Sẵn sàng ghi âm...</div>
+        <div id="recordingActions" class="action-row" style="display: none; margin-bottom: 10px;">
+          <button id="deleteRecordBtn" class="btn btn-delete"><i class="fa-solid fa-trash-can"></i> Hủy nháp</button>
+          <button id="uploadRecordBtn" class="btn btn-main"><i class="fa-solid fa-cloud-arrow-up"></i> Lưu lên Drive</button>
+        </div>
+        <div style="text-align: center; margin: 10px 0; color: #adb5bd; font-size: 11px; font-weight:700;">— HOẶC UP FILE TỪ MÁY —</div>
+        <input type="file" id="audioFile" accept="audio/*">
+        <button id="uploadFileBtn" class="btn btn-main" style="width:100%;"><i class="fa-solid fa-upload"></i> Đẩy File Lên Drive</button>
+        <div id="audioToast" class="toast-status"></div>
+      </div>
     </div>
 
-    <!-- TAB 2: TỪ VỰNG -->
-    <div id="tu-vung-tab" class="tab-content">
-        <h2>Thêm từ vựng vừa gặp</h2>
-        <label>Từ mới / Cụm từ:</label>
-        <input type="text" id="vocabWord" placeholder="Ví dụ: Serendipity">
+    <div class="pocket-section active" id="sec-vocab">
+      <div class="pocket-header" onclick="toggleSection('sec-vocab')">
+        <span><i class="fa-solid fa-book-bookmark" style="margin-right:6px;"></i> 2. Sổ Tay Từ Vựng</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </div>
+      <div class="pocket-content">
+        <label>Từ vựng mới <span class="required-tag">*</span></label>
+        <textarea id="vocabWord" rows="1" placeholder="Nhập từ mới..."></textarea>
         
-        <label>Nghĩa / Ghi chú ngữ cảnh:</label>
-        <textarea id="vocabMeaning" rows="3" placeholder="Sự tình cờ may mắn tìm ra thứ tốt đẹp..."></textarea>
+        <label>Ý nghĩa</label>
+        <textarea id="vocabMeaning" rows="2" placeholder="Giải nghĩa từ..."></textarea>
         
-        <button id="saveVocabBtn" class="btn-main">✨ Lưu vào kho từ vựng</button>
-        <div id="vocabStatus" class="status">Sẵn sàng lưu từ mới...</div>
+        <label>Ghi chú ngữ cảnh</label>
+        <textarea id="vocabNote" rows="2" placeholder="Ví dụ đặt câu (Nếu có)..."></textarea>
+        
+        <div class="control-row">
+          <button id="saveVocabBtn" class="btn btn-main" style="background-color:var(--mon-blue-deep); flex:2;">
+            <i class="fa-solid fa-floppy-disk"></i> Lưu Hệ Thống
+          </button>
+          <button id="clearAllBtn" class="btn btn-clear-all btn-small">
+            <i class="fa-solid fa-dumpster-fire"></i> Xóa tất cả
+          </button>
+        </div>
+        
+        <div id="vocabToast" class="toast-status"></div>
+
+        <div id="undoBanner" class="undo-banner">
+          <span><i class="fa-solid fa-rotate-left"></i> Đã xóa dữ liệu...</span>
+          <button id="undoBtn" class="btn-undo-action">Hoàn tác</button>
+        </div>
+
+        <div class="vocab-list-header-row">
+          <div class="vocab-list-title"><i class="fa-solid fa-list-check"></i> Danh sách từ đã lưu:</div>
+          <button class="btn-sync-refresh" onclick="syncFromSheet()"><i class="fa-solid fa-rotate"></i> Tải dữ liệu từ Sheet</button>
+        </div>
+        
+        <div class="vocab-table-container">
+          <table class="vocab-table">
+            <thead>
+              <tr>
+                <th class="col-stt">STT</th>
+                <th class="col-word">Từ vựng</th>
+                <th class="col-meaning">Ý nghĩa</th>
+                <th class="col-actions">Xóa</th>
+              </tr>
+            </thead>
+            <tbody id="vocabDataBody"></tbody>
+          </table>
+          <div id="emptyTip" class="empty-tip">Chưa có dữ liệu. Hãy điền cấu hình link Sheet trước nha! 🎒</div>
+        </div>
+      </div>
     </div>
+
+</div>
+
+<div id="detailModal" class="modal-overlay" onclick="closeModal()">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fa-solid fa-magnifying-glass-chart"></i> Chi tiết từ vựng</h3>
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row word-row">
+        <div>
+          <div class="detail-label">Từ vựng</div>
+          <div id="mdWord" class="detail-value big-word">...</div>
+        </div>
+        <button id="mdCopyBtn" class="btn-modal-copy"><i class="fa-solid fa-copy"></i> Copy</button>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">Ý nghĩa</div>
+        <div id="mdMeaning" class="detail-value">...</div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">Ghi chú ngữ cảnh / Ví dụ</div>
+        <div id="mdNote" class="detail-value" style="font-style: italic; color:#666;">...</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-    // ĐỔI LINK CỦA BẠN VÀO ĐÂY
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwRg9fhRf3Rua94TjnFUf4FHqAl1BBDSydad84UJ367bOQGLhDcuNjUCm6NCTHS2OYL1Q/exec';
+  let mediaRecorder, audioChunks = [], recordedBlob = null;
+  let lastDeletedData = null, undoTimeout = null;
 
-    // Hàm chuyển đổi qua lại giữa các tab
-    function openTab(tabId, btnElement) {
-        let contents = document.querySelectorAll('.tab-content');
-        contents.forEach(content => content.classList.remove('active'));
-        
-        let buttons = document.querySelectorAll('.tab-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        
-        document.getElementById(tabId).classList.add('active');
-        btnElement.classList.add('active');
+  const recordBtn = document.getElementById('recordBtn'), recordStatus = document.getElementById('recordStatus');
+  const audioPlayback = document.getElementById('audioPlayback'), recordingActions = document.getElementById('recordingActions');
+  const audioToast = document.getElementById('audioToast'), vocabToast = document.getElementById('vocabToast');
+  const undoBanner = document.getElementById('undoBanner'), detailModal = document.getElementById('detailModal');
+
+  function toggleSection(id) { document.getElementById(id).classList.toggle('active'); }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('cfgScriptUrl').value = localStorage.getItem('doraemon_script_url') || "";
+    document.getElementById('cfgSheetUrl').value = localStorage.getItem('doraemon_sheet_url') || "";
+    if(getScriptUrl() && getSheetUrl()) {
+       syncFromSheet();
     }
+  });
 
-    // LOGIC XỬ LÝ CHO PHẦN GHI ÂM
-    let mediaRecorder;
-    let audioChunks = [];
-    let audioBlob;
+  function getScriptUrl() { return localStorage.getItem('doraemon_script_url'); }
+  function getSheetUrl() { return localStorage.getItem('doraemon_sheet_url'); }
 
-    const recordBtn = document.getElementById('recordBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const uploadAudioBtn = document.getElementById('uploadAudioBtn');
-    const audioStatus = document.getElementById('audioStatus');
-    const audioPlayback = document.getElementById('audioPlayback');
+  function saveConfiguration() {
+    const sUrl = document.getElementById('cfgScriptUrl').value.trim();
+    const sheetUrl = document.getElementById('cfgSheetUrl').value.trim();
+    if(!sUrl || !sheetUrl) {
+      alert("Cậu điền đầy đủ cả 2 ô link nhé!");
+      return;
+    }
+    localStorage.setItem('doraemon_script_url', sUrl);
+    localStorage.setItem('doraemon_sheet_url', sheetUrl);
+    alert("Bảo bối đã ghi nhớ cấu hình rồi! ✨");
+    syncFromSheet();
+  }
 
-    recordBtn.addEventListener('click', async () => {
-        audioChunks = [];
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.onstop = () => {
-                audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                audioPlayback.src = URL.createObjectURL(audioBlob);
-                uploadAudioBtn.disabled = false;
-                audioStatus.innerText = "Đã chuẩn bị file. Bạn có thể bấm gửi!";
-            };
+  // Giao tiếp qua Fetch API API thay cho google.script.run
+  async function callAppsScriptAPI(payload) {
+    const url = getScriptUrl();
+    if(!url) {
+      showToast(vocabToast, "error", "Chưa cấu hình URL Web App Apps Script!");
+      return null;
+    }
+    payload.sheetUrl = getSheetUrl();
+    
+    try {
+      let response = await fetch(url, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify(payload)
+      });
+      return await response.json();
+    } catch(err) {
+      console.error(err);
+      return { success: false, message: "Lỗi đường truyền internet hoặc sai link Web App!" };
+    }
+  }
 
-            mediaRecorder.start();
-            recordBtn.disabled = true;
-            stopBtn.disabled = false;
-            uploadAudioBtn.disabled = true;
-            audioStatus.innerText = "🎙️ Đang ghi âm âm thanh của bạn...";
-        } catch (err) {
-            alert("Vui lòng cấp quyền mở micro!");
-        }
+  async function syncFromSheet() {
+    if(!getScriptUrl()) return;
+    const tbody = document.getElementById('vocabDataBody');
+    const tip = document.getElementById('emptyTip');
+    tbody.innerHTML = "";
+    tip.style.display = 'block';
+    tip.textContent = "⏳ Doraemon đang quét dữ liệu từ file Sheet về...";
+
+    let sheetList = await callAppsScriptAPI({ action: "readVocabulary" });
+    if(sheetList && Array.isArray(sheetList)) {
+      setLocalVocabs(sheetList);
+      renderVocabList();
+    } else {
+      tip.textContent = "Không thể tải dữ liệu. Hãy kiểm tra lại phần Cấu hình.";
+    }
+  }
+
+  function renderVocabList() {
+    const tbody = document.getElementById('vocabDataBody');
+    const tip = document.getElementById('emptyTip');
+    let vocabs = getLocalVocabs();
+    tbody.innerHTML = "";
+    
+    if (vocabs.length === 0) {
+      tip.style.display = 'block';
+      tip.textContent = "Chưa có từ vựng nào trong tủ! 🎒";
+      return;
+    }
+    tip.style.display = 'none';
+
+    vocabs.forEach((item, index) => {
+      let tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="col-stt" style="font-weight:700; color:#868e96;">${index + 1}</td>
+        <td class="col-word word-clickable" onclick="openDetailModal(${index})">${escapeHtml(item.word)}</td>
+        <td class="col-meaning">
+          <button class="btn-table-icon btn-copy-item" onclick="copyTextDirect('${escapeHtml(item.word.replace(/\n/g, ' '))}')">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+          ${item.meaning ? escapeHtml(item.meaning) : '<i style="color:#adb5bd;">Trống</i>'}
+        </td>
+        <td class="col-actions">
+          <button class="btn-table-icon btn-delete-item" onclick="deleteVocabItem(${index})">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
     });
+  }
 
-    stopBtn.addEventListener('click', () => {
-        mediaRecorder.stop();
-        recordBtn.disabled = false;
-        stopBtn.disabled = true;
+  function openDetailModal(index) {
+    let vocabs = getLocalVocabs();
+    let item = vocabs[index];
+    if (!item) return;
+    document.getElementById('mdWord').textContent = item.word;
+    document.getElementById('mdMeaning').textContent = item.meaning || "Chưa có giải nghĩa";
+    document.getElementById('mdNote').textContent = item.note || "Không có ghi chú ngữ cảnh.";
+    document.getElementById('mdCopyBtn').onclick = () => copyTextDirect(item.word);
+    detailModal.classList.add('open');
+  }
+
+  function closeModal() { detailModal.classList.remove('open'); }
+
+  function copyTextDirect(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(vocabToast, "success", "Đã copy từ thành công! 📋");
+    }).catch(() => {
+      let t = document.createElement("textarea"); t.value = text; document.body.appendChild(t);
+      t.select(); document.execCommand("copy"); document.body.removeChild(t);
+      showToast(vocabToast, "success", "Đã copy từ thành công! 📋");
     });
+  }
 
-    uploadAudioBtn.addEventListener('click', () => {
-        audioStatus.innerText = "⏳ Đang chuyển và đẩy file lên Sheet...";
-        uploadAudioBtn.disabled = true;
+  document.getElementById('saveVocabBtn').addEventListener('click', async () => {
+    const wIn = document.getElementById('vocabWord'), mIn = document.getElementById('vocabMeaning'), nIn = document.getElementById('vocabNote');
+    if (!wIn.value.trim()) { showToast(vocabToast, "error", "Cậu điền Từ mới vào đã nhé!"); wIn.focus(); return; }
 
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = () => {
-            const base64Data = reader.result.split(',')[1];
-            
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    type: "AUDIO",
-                    audioBase64: base64Data,
-                    mimeType: 'audio/mp3',
-                    fileName: 'Record_' + Date.now() + '.mp3'
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.result === "success") {
-                    audioStatus.innerHTML = `✅ Đã lưu vào tab GhiAm! <a href="${data.url}" target="_blank">Nghe file gốc</a>`;
-                } else {
-                    audioStatus.innerText = "❌ Lỗi: " + data.error;
-                    uploadAudioBtn.disabled = false;
-                }
-            })
-            .catch(() => {
-                audioStatus.innerText = "❌ Lỗi kết nối mạng.";
-                uploadAudioBtn.disabled = false;
-            });
-        };
+    let vocabs = getLocalVocabs();
+    let nextStt = vocabs.length + 1;
+    let newWord = wIn.value.trim(), newMeaning = mIn.value.trim(), newNote = nIn.value.trim();
+
+    vocabs.push({ word: newWord, meaning: newMeaning, note: newNote });
+    setLocalVocabs(vocabs); renderVocabList();
+    
+    wIn.value = ""; mIn.value = ""; nIn.value = "";
+    showToast(vocabToast, "success", "Đang đồng bộ lên file Sheet... ⏳");
+
+    let res = await callAppsScriptAPI({ action: "saveVocabulary", word: newWord, meaning: newMeaning, note: newNote, currentStt: nextStt });
+    if(res && res.success) {
+      showToast(vocabToast, "success", "Đã lưu lên cả Web & file Sheet! 🎉");
+    } else {
+      showToast(vocabToast, "error", "Lỗi đồng bộ: " + (res ? res.message : "Thất bại"));
+    }
+  });
+
+  async function deleteVocabItem(index) {
+    let vocabs = getLocalVocabs();
+    let removed = vocabs.splice(index, 1)[0];
+    lastDeletedData = { type: "single", item: removed, index: index };
+    setLocalVocabs(vocabs); renderVocabList();
+    triggerUndoCountdown();
+    await callAppsScriptAPI({ action: "deleteVocabulary", word: removed.word });
+  }
+
+  document.getElementById('clearAllBtn').addEventListener('click', async () => {
+    let vocabs = getLocalVocabs();
+    if (vocabs.length === 0) return;
+    if (!confirm("Cậu muốn xóa sạch toàn bộ từ vựng?")) return;
+    lastDeletedData = { type: "all", list: vocabs };
+    setLocalVocabs([]); renderVocabList();
+    triggerUndoCountdown();
+    await callAppsScriptAPI({ action: "clearAllVocabulary" });
+  });
+
+  document.getElementById('undoBtn').addEventListener('click', async () => {
+    if (!lastDeletedData) return;
+    let vocabs = getLocalVocabs();
+    if (lastDeletedData.type === "single") {
+      vocabs.splice(lastDeletedData.index, 0, lastDeletedData.item);
+      setLocalVocabs(vocabs);
+      await callAppsScriptAPI({ action: "saveVocabulary", word: lastDeletedData.item.word, meaning: lastDeletedData.item.meaning, note: lastDeletedData.item.note, currentStt: lastDeletedData.index + 1 });
+    } else {
+      setLocalVocabs(lastDeletedData.list);
+      for(let i=0; i<lastDeletedData.list.length; i++) {
+        let it = lastDeletedData.list[i];
+        await callAppsScriptAPI({ action: "saveVocabulary", word: it.word, meaning: it.meaning, note: it.note, currentStt: i + 1 });
+      }
+    }
+    hideUndoBanner(); renderVocabList();
+    showToast(vocabToast, "success", "Khôi phục thành công! ✨");
+  });
+
+  function triggerUndoCountdown() { clearTimeout(undoTimeout); undoBanner.style.display = "flex"; undoTimeout = setTimeout(hideUndoBanner, 5000); }
+  function hideUndoBanner() { undoBanner.style.display = "none"; lastDeletedData = null; }
+  function getLocalVocabs() { let l = localStorage.getItem('doraemon_vocabs'); return l ? JSON.parse(l) : []; }
+  function setLocalVocabs(arr) { localStorage.setItem('doraemon_vocabs', JSON.stringify(arr)); }
+  function escapeHtml(t) { return t ? t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : ""; }
+
+  // --- HỆ THỐNG GHI ÂM ĐA NỀN TẢNG (FIXED FOR MOBILE/LAPTOP) ---
+  recordBtn.addEventListener('click', async () => {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      recordBtn.classList.remove('recording');
+      recordBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+      recordStatus.textContent = "Đã thu xong bản âm!";
+      return;
+    }
+    audioChunks = [];
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Chọn Định Dạng Tệp tối ưu cho mọi Hệ Điều Hành (Bao gồm cả iOS Safari)
+      let options = { mimeType: 'audio/webm' };
+      if (!MediaRecorder.isTypeSupported('audio/webm')) {
+        options = { mimeType: 'audio/mp4' }; // Fallback cho iOS Safari
+      }
+
+      mediaRecorder = new MediaRecorder(stream, options);
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        recordedBlob = new Blob(audioChunks, { type: options.mimeType });
+        audioPlayback.src = URL.createObjectURL(recordedBlob);
+        audioPlayback.style.display = 'block'; recordingActions.style.display = 'flex';
+        recordBtn.style.display = 'none'; recordStatus.textContent = "File nháp đã sẵn sàng!";
+        
+        // Tắt Microphone sau khi dùng để bảo vệ pin và bảo mật thiết bị
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start();
+      recordBtn.classList.add('recording');
+      recordBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+      recordStatus.textContent = "🔴 Đang thu âm... Chạm để dừng";
+    } catch (err) { 
+      alert("Hãy mở quyền Micro cho web trên trình duyệt điện thoại/laptop của cậu nhé!"); 
+    }
+  });
+
+  document.getElementById('deleteRecordBtn').addEventListener('click', () => {
+    recordedBlob = null; audioPlayback.src = ""; audioPlayback.style.display = 'none';
+    recordingActions.style.display = 'none'; recordBtn.style.display = 'flex'; recordStatus.textContent = "Chạm để thu lại";
+  });
+
+  document.getElementById('uploadRecordBtn').addEventListener('click', () => {
+    if (!recordedBlob) return;
+    let ext = mediaRecorder.mimeType.includes('mp4') ? '.mp4' : '.mp3';
+    uploadFileToAppsScript(recordedBlob, "Ghi_Am_" + Date.now() + ext, audioToast, () => {
+      recordedBlob = null; audioPlayback.style.display = 'none'; recordingActions.style.display = 'none'; recordBtn.style.display = 'flex'; recordStatus.textContent = "Chạm để ghi âm tiếp";
     });
+  });
 
-    // LOGIC XỬ LÝ CHO PHẦN LƯU TỪ VỰNG
-    const saveVocabBtn = document.getElementById('saveVocabBtn');
-    const vocabWord = document.getElementById('vocabWord');
-    const vocabMeaning = document.getElementById('vocabMeaning');
-    const vocabStatus = document.getElementById('vocabStatus');
+  document.getElementById('uploadFileBtn').addEventListener('click', () => {
+    const fileInput = document.getElementById('audioFile');
+    if (fileInput.files.length === 0) { showToast(audioToast, "error", "Cậu chưa chọn file âm thanh nào!"); return; }
+    uploadFileToAppsScript(fileInput.files[0], fileInput.files[0].name, audioToast, () => { fileInput.value = ""; });
+  });
 
-    saveVocabBtn.addEventListener('click', () => {
-        const word = vocabWord.value.trim();
-        const meaning = vocabMeaning.value.trim();
+  function uploadFileToAppsScript(fileBlob, fileName, toastElement, onSuccess) {
+    showToast(toastElement, "pending", "Chờ bảo bối tải tệp lên Drive xíu nhé...");
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      let res = await callAppsScriptAPI({ action: "uploadAudio", base64Data: e.target.result, fileName: fileName });
+      if(res && res.success) {
+        showToast(toastElement, "success", res.message);
+        if(onSuccess) onSuccess();
+      } else {
+        showToast(toastElement, "error", res ? res.message : "Tải lên thất bại");
+      }
+    };
+    reader.readAsDataURL(fileBlob);
+  }
 
-        if(!word || !meaning) {
-            alert("Hãy điền đầy đủ cả từ mới và nghĩa của nó nha!");
-            return;
-        }
-
-        vocabStatus.innerText = "⏳ Đang lưu từ mới lên Sheet...";
-        saveVocabBtn.disabled = true;
-
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                type: "VOCAB",
-                word: word,
-                meaning: meaning
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.result === "success") {
-                vocabStatus.innerText = "✅ Đã thêm từ vựng thành công vào tab TuVung!";
-                vocabWord.value = "";
-                vocabMeaning.value = "";
-            } else {
-                vocabStatus.innerText = "❌ Không thể lưu từ vựng.";
-            }
-            saveVocabBtn.disabled = false;
-        })
-        .catch(() => {
-            vocabStatus.innerText = "❌ Lỗi kết nối mạng.";
-            saveVocabBtn.disabled = false;
-        });
-    });
+  function showToast(element, type, message) {
+    element.className = "toast-status " + type;
+    element.style.display = "block";
+    element.innerHTML = (type === "pending" ? '⏳ ' : (type === "success" ? '🎉 ' : '❌ ')) + message;
+    if (type !== "pending") setTimeout(() => { element.style.display = 'none'; }, 3500);
+  }
 </script>
 </body>
 </html>
