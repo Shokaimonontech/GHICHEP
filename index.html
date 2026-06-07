@@ -36,7 +36,7 @@
     }
 
     .doraemon-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
-    .doraemon-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--mon-blue-dark); background-color: #fff; }
+    .doraemon-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--mon-blue-dark); background-color: #fff; object-fit: cover; }
     .collar { width: 70%; height: 10px; background-color: var(--mon-red); border-radius: 20px; margin-top: -5px; position: relative; display: flex; justify-content: center; }
     .bell { width: 20px; height: 20px; background-color: var(--mon-yellow); border: 1.5px solid #333; border-radius: 50%; position: absolute; top: -4px; }
     h1 { font-size: 20px; font-weight: 700; color: var(--mon-blue-deep); margin: 10px 0 2px 0; }
@@ -147,7 +147,7 @@
 <div class="app-container">
   
     <div class="doraemon-header">
-      <img class="doraemon-avatar" src="https://lh3.googleusercontent.com/d/1_T0A4w083_99AeeD49-3Fh77Hj207v0D=s160" alt="Doraemon">
+      <img class="doraemon-avatar" src="https://i.imgur.com/8Q5N8pE.png" alt="Doraemon">
       <div class="collar"><div class="bell"></div></div>
       <h1>Doraemon Space ✦</h1>
       <p class="header-subtitle">Đồng bộ đám mây kép cho Laptop & Phone</p>
@@ -293,6 +293,8 @@
     document.getElementById('cfgSheetUrl').value = localStorage.getItem('doraemon_sheet_url') || "";
     if(getScriptUrl() && getSheetUrl()) {
        syncFromSheet();
+    } else {
+       renderVocabList(); // Đảm bảo giao diện load danh sách ban đầu mượt mà
     }
   });
 
@@ -356,7 +358,7 @@
     let vocabs = getLocalVocabs();
     tbody.innerHTML = "";
     
-    if (vocabs.length === 0) {
+    if (!vocabs || vocabs.length === 0) {
       tip.style.display = 'block';
       tip.textContent = "Màn hình trống! Bấm nút bên trên để tải lại từ Sheet. 🎒";
       return;
@@ -372,7 +374,7 @@
           <button class="btn-table-icon btn-copy-item" onclick="copyTextDirect('${escapeHtml(item.word.replace(/\n/g, ' '))}')">
             <i class="fa-solid fa-copy"></i>
           </button>
-          ${item.meaning ? escapeHtml(item.meaning) : '<i style="color:#adb5bd;">Trống</i>'}
+          \${item.meaning ? escapeHtml(item.meaning) : '<i style="color:#adb5bd;">Trống</i>'}
         </td>
         <td class="col-actions">
           <button class="btn-table-icon btn-delete-item" onclick="deleteVocabItem(${index})" title="Chỉ ẩn khỏi Web">
@@ -429,7 +431,6 @@
     }
   });
 
-  // CHỈ XÓA TRÊN WEB - KHÔNG ĐỤNG VÀO SHEET
   function deleteVocabItem(index) {
     let vocabs = getLocalVocabs();
     let removed = vocabs.splice(index, 1)[0];
@@ -439,17 +440,15 @@
     showToast(vocabToast, "success", "Đã ẩn từ vựng này khỏi màn hình Web! (Dữ liệu trên Sheet vẫn nguyên vẹn)");
   }
 
-  // CHỈ XÓA TRÊN WEB - KHÔNG ĐỤNG VÀO SHEET
   document.getElementById('clearAllBtn').addEventListener('click', () => {
     let vocabs = getLocalVocabs();
-    if (vocabs.length === 0) return;
+    if (!vocabs || vocabs.length === 0) return;
     lastDeletedData = { type: "all", list: vocabs };
     setLocalVocabs([]); renderVocabList();
     triggerUndoCountdown();
     showToast(vocabToast, "success", "Đã dọn sạch màn hình Web! (Dữ liệu trên Sheet vẫn còn)");
   });
 
-  // HÀM ĐẶC BIỆT: GỌI API ĐỂ XÓA SHEET (NẰM TRONG ZONE CẤU HÌNH)
   async function clearAllVocabularyOnSheetOnly() {
     if(!getScriptUrl()) { alert("Chưa cấu hình liên kết!"); return; }
     if (!confirm("CẢNH BÁO NGUY HIỂM: Bạn có chắc chắn muốn xóa SẠCH TOÀN BỘ từ vựng trên file Google Sheets không? Hành động này không thể khôi phục!")) return;
@@ -480,11 +479,30 @@
 
   function triggerUndoCountdown() { clearTimeout(undoTimeout); undoBanner.style.display = "flex"; undoTimeout = setTimeout(hideUndoBanner, 5000); }
   function hideUndoBanner() { undoBanner.style.display = "none"; lastDeletedData = null; }
-  function getLocalVocabs() { let l = localStorage.getItem('doraemon_vocabs'); return l ? JSON.parse(l) : []; }
-  function setLocalVocabs(arr) { localStorage.setItem('doraemon_vocabs', JSON.stringify(arr)); }
-  function escapeHtml(t) { return t ? t.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """) : ""; }
+  
+  // Sửa lỗi bọc dữ liệu LocalStorage tránh bị null mảng
+  function getLocalVocabs() { 
+    let l = localStorage.getItem('doraemon_vocabs'); 
+    try {
+      return l ? JSON.parse(l) : [];
+    } catch(e) {
+      return [];
+    }
+  }
+  function setLocalVocabs(arr) { localStorage.setItem('doraemon_vocabs', JSON.stringify(arr || [])); }
+  
+  // Sửa lỗi bảo mật chuỗi & cú pháp dấu nháy
+  function escapeHtml(text) {
+    if (!text) return "";
+    return text.toString()
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-  // --- HỆ THỐNG GHI ÂM (HỦY NHÁP KHÔNG XÓA DRIVE) ---
+  // --- HỆ THỐNG GHI ÂM ---
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === "recording") {
       mediaRecorder.stop();
@@ -510,13 +528,12 @@
       };
       
       mediaRecorder.start();
-      recordBtn.classList.add('recording');
+      mediaRecorder.classList?.add('recording') || recordBtn.classList.add('recording');
       recordBtn.innerHTML = '<i class="fa-solid fa-stop"></i>';
       recordStatus.textContent = "🔴 Đang thu âm... Chạm để dừng";
     } catch (err) { alert("Hãy mở quyền Micro nhé!"); }
   });
 
-  // Hủy nháp chỉ là hủy file vừa ghi trên giao diện Web, chưa up lên Drive nên không sợ tốn dung lượng
   document.getElementById('deleteRecordBtn').addEventListener('click', () => {
     recordedBlob = null; audioPlayback.src = ""; audioPlayback.style.display = 'none';
     recordingActions.style.display = 'none'; recordBtn.style.display = 'flex'; recordStatus.textContent = "Chạm để thu lại";
